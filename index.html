@@ -173,94 +173,3 @@
 
 </body>
 </html>
-            margin: 20px auto;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h1>دمج الفيديوهات 🎬</h1>
-    <p>اختر الفيديوهات لدمجها بجودة عالية (1080p)</p>
-    
-    <label for="videoInput" class="custom-file-upload">
-        📁 اختيار الملفات
-    </label>
-    <input type="file" id="videoInput" multiple accept="video/*">
-    
-    <div id="fileCount">لم يتم اختيار ملفات</div>
-
-    <div class="loader" id="loader"></div>
-    <button id="mergeBtn">ابدأ عملية الدمج</button>
-    
-    <div id="status"></div>
-</div>
-
-<script>
-    const videoInput = document.getElementById('videoInput');
-    const mergeBtn = document.getElementById('mergeBtn');
-    const status = document.getElementById('status');
-    const loader = document.getElementById('loader');
-    const fileCount = document.getElementById('fileCount');
-
-    // تحديث عدد الملفات المختارة
-    videoInput.addEventListener('change', () => {
-        const count = videoInput.files.length;
-        fileCount.innerText = count > 0 ? `عدد الملفات: ${count}` : 'لم يتم اختيار ملفات';
-    });
-
-    mergeBtn.addEventListener('click', async () => {
-        if (videoInput.files.length < 2) {
-            status.innerText = "❌ يرجى اختيار فيديوهين على الأقل";
-            status.style.color = "#ff4444";
-            return;
-        }
-
-        const formData = new FormData();
-        for (let i = 0; i < videoInput.files.length; i++) {
-            formData.append('videos', videoInput.files[i]);
-        }
-
-        // إعداد الواجهة لبدء العمل
-        status.innerText = "⏳ جاري الإرسال للسيرفر ودمج الملفات...";
-        status.style.color = "#ffcc00";
-        mergeBtn.disabled = true;
-        loader.style.display = "block";
-
-        try {
-            // الرابط الجديد الخاص بك على Render
-            const response = await fetch('https://video-merger-server.onrender.com/merge', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'Merged_Video_By_Gold.mp4';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                status.innerText = "✅ تمت العملية بنجاح! تم تحميل الفيديو.";
-                status.style.color = "#00ff00";
-            } else {
-                status.innerText = "❌ حدث خطأ في السيرفر أثناء الدمج";
-                status.style.color = "#ff4444";
-            }
-        } catch (error) {
-            console.error(error);
-            status.innerText = "❌ تعذر الاتصال بالسيرفر. تأكد أن سيرفر Render في حالة Live.";
-            status.style.color = "#ff4444";
-        } finally {
-            mergeBtn.disabled = false;
-            loader.style.display = "none";
-        }
-    });
-</script>
-
-</body>
-</html>
-
